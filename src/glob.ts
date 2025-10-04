@@ -9,6 +9,14 @@ import {
   PathScurryPosix,
   PathScurryWin32,
 } from 'path-scurry'
+import {
+  getCachedPattern,
+  getCachedResults,
+  setCachedResults,
+  createCacheKey,
+  isSimplePattern,
+  fastPathMatch,
+} from './cache.js'
 import { IgnoreLike } from './ignore.js'
 import { Pattern } from './pattern.js'
 import { GlobStream, GlobWalker } from './walker.js'
@@ -527,7 +535,8 @@ export class Glob<Opts extends GlobOptions> implements GlobOptions {
       debug: !!this.opts.debug,
     }
 
-    const mms = this.pattern.map(p => new Minimatch(p, mmo))
+    // Use cached pattern compilation for better performance
+    const mms = this.pattern.map(p => getCachedPattern(p, mmo))
     const [matchSet, globParts] = mms.reduce(
       (set: [MatchSet, GlobParts], m) => {
         set[0].push(...m.set)

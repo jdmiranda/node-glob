@@ -29,6 +29,13 @@ export { hasMagic } from './has-magic.js'
 export { Ignore } from './ignore.js'
 export type { IgnoreLike } from './ignore.js'
 export type { MatchStream } from './walker.js'
+export {
+  clearPatternCache,
+  clearResultCache,
+  clearStatCache,
+  clearAllCaches,
+  getCacheStats,
+} from './cache.js'
 
 /**
  * Syncronous form of {@link globStream}. Will read all the matches as fast as
