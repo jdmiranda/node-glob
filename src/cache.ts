@@ -14,7 +14,6 @@ import { Minimatch, MinimatchOptions } from 'minimatch'
 
 // Pattern compilation cache - stores compiled Minimatch instances
 const patternCache = new Map<string, Minimatch>()
-const MAX_PATTERN_CACHE_SIZE = 1000
 
 // Result memoization cache with TTL
 interface CachedResult {
@@ -51,16 +50,8 @@ export function getCachedPattern(
   const cacheKey = JSON.stringify({ pattern, options: serializableOpts })
 
   let cached = patternCache.get(cacheKey)
-  if (cached) {
-    // touch for simple LRU behavior
-    patternCache.delete(cacheKey)
-    patternCache.set(cacheKey, cached)
-  } else {
+  if (!cached) {
     cached = new Minimatch(pattern, options)
-    if (patternCache.size >= MAX_PATTERN_CACHE_SIZE) {
-      const firstKey = patternCache.keys().next().value
-      patternCache.delete(firstKey)
-    }
     patternCache.set(cacheKey, cached)
   }
 
@@ -143,9 +134,6 @@ export function getCachedResults(
     return null
   }
 
-  // touch entry to keep hot results recent
-  resultCache.delete(cacheKey)
-  resultCache.set(cacheKey, cached)
   return cached.results
 }
 
@@ -202,14 +190,7 @@ export function createCacheKey(
  */
 export function getCachedStat(path: string, statType: 'lstat' | 'stat' = 'lstat'): any | null {
   const key = `${statType}:${path}`
-  const v = statCache.get(key)
-  if (v !== undefined) {
-    // touch entry
-    statCache.delete(key)
-    statCache.set(key, v)
-    return v
-  }
-  return null
+  return statCache.get(key) || null
 }
 
 /**
