@@ -93,5 +93,6 @@
   "engines": {
     "node": "20 || >=22"
   },
-  "module": "./dist/esm/index.js"
+  "module": "./dist/esm/index.js",
+  "sideEffects": false
 }
